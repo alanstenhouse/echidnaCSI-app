@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>[[TITLE]]</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+
+// TEMPLATE for map with multiple markers, infowindow for marker, and path connecting markers in order.
+// Markers in following format:
+/*
+    {
+        "title": 'Aksa Beach',
+        "lat": '-34.970982',
+        "lng": '138.637048',
+        "description": 'Aksa Beach is a popular beach and a vacation spot in Aksa village at Malad, Mumbai.'
+    },
+*/
+// Replace these markers with out own ones. Description should be a combo of info for marker.
+    var markers = [
+[[MARKERS_ARRAY]]
+    ];
+    
+      // This creates simple polyline containing our path
+
+// Path coordinates array is passed in here. Format is:
+/*
+{lat: -34.970982, lng: 138.637048},
+{lat: -34.973937, lng: 138.634758},
+*/
+        var pathCoordinates = [
+[[PATH_ARRAY]]
+        ];
+
+ var map; // AXS 2017-08-07 Our map var
+ 
+ // Our callback function that creates the map with path and markers   
+    function LoadMap() {
+    	// create the map centred on the first marker
+        var mapOptions = {
+           //center: new google.maps.LatLng(markers[0].lat, markers[0].lng),
+            center: new google.maps.LatLng([[DEF_LAT]],[[DEF_LONG]]), // these will be replaced in merge
+            zoom: 14,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        map = new google.maps.Map(document.getElementById('map'), mapOptions);
+ 
+ 		// initialise the path polyline, passing it our path array
+ 		/* Not using PATH here
+         var myPath = new google.maps.Polyline({
+          path: pathCoordinates,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+        });
+
+        myPath.setMap(map);
+        */
+        
+        //Create and open InfoWindow.
+        var infoWindow = new google.maps.InfoWindow();
+ 
+        for (var i = 0; i < markers.length; i++) {
+            var data = markers[i];
+            var myLatlng = new google.maps.LatLng(data.lat, data.lng);
+            var marker = new google.maps.Marker({
+                position: myLatlng,
+                map: map,
+                title: data.title
+            });
+ 
+ 
+            //Attach click event to the marker.
+            (function (marker, data) {
+                google.maps.event.addListener(marker, "click", function (e) {
+                    //Wrap the content inside an HTML DIV in order to set height and width of InfoWindow.
+                   // infoWindow.setContent("<div style = 'width:200px;min-height:40px'>" + data.description + "</div>");
+                //   alert("••• description decoded=" + decodeURIComponent(data.description));
+ 
+                    infoWindow.setContent("<div style = 'width:200px;min-height:40px'>" + decodeURIComponent(data.description) + "</div>");
+                    infoWindow.open(map, marker);
+                });
+            })(marker, data);
+        }
+        
+        // AXS 2017-08-07 Set map center to be first marker point
+        // AXS 2017-09-01 we have last one set using DEF_LAT,DEF_LONG above
+     /*   if (markers.length > 0) {
+        	gotoLoc(markers[0].lat, markers[0].lng);
+        }
+    */
+    }
+    
+function gotoLoc(pLat, pLong) {
+ // Go to current location and centre map
+  var center = new google.maps.LatLng(
+    pLat,
+    pLong
+    );
+    map.setCenter(center);
+}
+    </script>
+    <script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAyHAK7fHZplATu6pcNYf-y4Di6eDI3UhU&callback=LoadMap">
+/* //src="https://maps.googleapis.com/maps/api/js?key=AIzaSyANmkfiq_lqvAIEL_YJc0_dc5bWNyRX9Nw&callback=LoadMap">
+// use echidnaCSI key
+*/
+    </script>
+
+  </body>
+</html>
